@@ -22,9 +22,8 @@ def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
     title = html.unescape(title)
     subtitle = html.unescape(subtitle)
 
-    # Remove non ASCII characters.
-    title = title.encode("ascii", errors="ignore").decode()
-    subtitle = subtitle.encode("ascii", errors="ignore").decode()
+    if "\n" in subtitle:
+        subtitle = subtitle.split("\n")[0]
 
     #######################
 
