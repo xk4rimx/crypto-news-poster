@@ -18,13 +18,13 @@ def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
     date = dparser.parse(date).astimezone(zoneinfo.ZoneInfo("localtime"))
     timestamp = datetime.datetime.timestamp(date)
 
-    # Remove non ASCII characters.
-    title = title.encode("ascii", errors="ignore").decode()
-    subtitle = subtitle.encode("ascii", errors="ignore").decode()
-
     # Decode any HTML phrases.
     title = html.unescape(title)
     subtitle = html.unescape(subtitle)
+
+    # Remove non ASCII characters.
+    title = title.encode("ascii", errors="ignore").decode()
+    subtitle = subtitle.encode("ascii", errors="ignore").decode()
 
     #######################
 
@@ -49,13 +49,18 @@ def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
 
     #######################
 
-    # Remove any characters after the last sentence of
-    # the subtitle. Usually it is "Continue reading".
+    # Preproccess the subtitle's ending.
+
     while not subtitle.endswith(".") and subtitle != "":
         subtitle = subtitle[:-1]
 
     if not subtitle.endswith("...") and subtitle != "":
         subtitle += ".."
+
+    if subtitle.endswith(" ..."):
+        subtitle = subtitle.replace(" ...", "...")
+
+    #######################
 
     return title, subtitle, timestamp, source_url
 
