@@ -80,7 +80,7 @@ def main():
 
     helpers.send_telegram_msg(
         bot_token=TELEGRAM_BOT_TOKEN,
-        chat_id=TELEGRAM_CHANNEL_ID,
+        username=TELEGRAM_CHANNEL_ID,
         text=text,
     )
 
