@@ -37,11 +37,11 @@ def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
     while not title.startswith(printable_ascii_chars) and title != "":
         title = title[1:]
 
-    while not title.endswith(printable_ascii_chars) and title != "":
-        title = title[:-1]
-
     while not subtitle.startswith(printable_ascii_chars) and subtitle != "":
         subtitle = subtitle[1:]
+
+    while not title.endswith(printable_ascii_chars) and title != "":
+        title = title[:-1]
 
     while not subtitle.endswith(printable_ascii_chars) and subtitle != "":
         subtitle = subtitle[:-1]
@@ -50,14 +50,11 @@ def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
 
     # Preproccess the subtitle's ending.
 
-    while not subtitle.endswith(".") and subtitle != "":
+    while not subtitle[-1].isalpha() and subtitle != "":
         subtitle = subtitle[:-1]
 
-    if not subtitle.endswith("...") and subtitle != "":
-        subtitle += ".."
-
-    if subtitle.endswith(" ..."):
-        subtitle = subtitle.replace(" ...", "...")
+    if subtitle != "":
+        subtitle += "..."
 
     #######################
 
