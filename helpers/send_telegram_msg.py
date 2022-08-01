@@ -15,5 +15,4 @@ def send_telegram_msg(bot_token: str, username: str, text: str) -> None:
         },
     )
 
-    if response.status_code != 200:
-        raise ValueError(response.json())
+    response.raise_for_status()
