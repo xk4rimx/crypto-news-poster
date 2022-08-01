@@ -1,112 +1,71 @@
-import string
 import datetime
 import zoneinfo
-import html
 import dateutil.parser as dparser
+import bs4
 import requests
-import sorcery
+import fastpunct
+
+fp = fastpunct.FastPunct(
+    checkpoint_local_path=".fastpunct/",
+)
+
+
+def _get_last_articles(coin: str) -> dict:
+
+    sess = requests.Session()
+
+    html = sess.get("https://cryptonews-api.com/").text
+    soup = bs4.BeautifulSoup(html, "lxml")
+
+    csrf_element = soup.find("meta", {"name": "csrf-token"})
+    csrf_token = csrf_element["content"]
+
+    data = {
+        "token": "demo",
+        "tickers": coin,
+        "_token": csrf_token,
+    }
+
+    response = sess.post(
+        "https://cryptonews-api.com/demo/index",
+        headers={"content-type": "application/x-www-form-urlencoded"},
+        data=data,
+    )
+
+    response.raise_for_status()
+    return response.json()["data"]
 
 
 def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
 
     title = article["title"]
-    subtitle = article["subtitle"]
-    date = article["createdAt"]
-    source_url = article["sourceUrl"]
+    subtitle = article["text"]
+    date = article["date"]
+    source_url = article["news_url"]
+
+    # Fix punctuation issues in the subtitle.
+    subtitle = fp.punct(subtitle)
 
     # Convert date from UTC to local time, and then into a timestamp.
     date = dparser.parse(date).astimezone(zoneinfo.ZoneInfo("localtime"))
     timestamp = datetime.datetime.timestamp(date)
-
-    # Decode any HTML phrases.
-    title = html.unescape(title)
-    subtitle = html.unescape(subtitle)
-
-    if "\n" in subtitle:
-        subtitle = subtitle.split("\n")[0]
-
-    #######################
-
-    # Remove any non necessary characters (e.g. white space)
-    # before and after the title and the subtitle.
-
-    printable_ascii_chars = tuple(
-        string.ascii_letters + string.digits + string.punctuation
-    )
-
-    while not title.startswith(printable_ascii_chars) and title != "":
-        title = title[1:]
-
-    while not subtitle.startswith(printable_ascii_chars) and subtitle != "":
-        subtitle = subtitle[1:]
-
-    while not title.endswith(printable_ascii_chars) and title != "":
-        title = title[:-1]
-
-    while not subtitle.endswith(printable_ascii_chars) and subtitle != "":
-        subtitle = subtitle[:-1]
-
-    #######################
-
-    # Preproccess the subtitle's ending.
-
-    while not subtitle[-1].isalpha() and subtitle != "":
-        subtitle = subtitle[:-1]
-
-    if subtitle != "":
-        subtitle += "..."
-
-    #######################
 
     return title, subtitle, timestamp, source_url
 
 
 def last_news_article(coin: str) -> dict:
 
-    match coin:
+    articles = _get_last_articles(coin)
+    articles = [article for article in articles if len(article["tickers"]) == 1]
 
-        case "BTC":
-            coin_id = 1
-
-        case "ETH":
-            coin_id = 2
-
-        case _:
-            raise ValueError(
-                f"unsupported coin: {coin}",
-            )
-
-    headers = {
-        "authority": "api.coinmarketcap.com",
-        "accept": "application/json, text/plain, */*",
-        "accept-language": "en-GB,en;q=0.9",
-        "platform": "web",
-        "user-agent": "Firefox/47.0",
-    }
-
-    params = {
-        "coins": coin_id,
-        "page": "1",
-        "size": "1",
-    }
-
-    response = requests.get(
-        "https://api.coinmarketcap.com/content/v3/news",
-        params=params,
-        headers=headers,
-    )
-
-    response_data = response.json()["data"]
-    last_article_data = response_data[0]["meta"]
-
+    last_article = articles[0]
     title, subtitle, timestamp, source_url = _preproccess_article_data(
-        last_article_data
+        last_article,
     )
 
-    # Return a dict containing variables values. {"title": title, ...}
-    return sorcery.dict_of(
-        title,
-        subtitle,
-        timestamp,
-        source_url,
-    )
+    return {
+        "title": title,
+        "subtitle": subtitle,
+        "timestamp": timestamp,
+        "source_url": source_url,
+    }
