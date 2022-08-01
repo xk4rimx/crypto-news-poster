@@ -19,70 +19,44 @@ TELEGRAM_ARTICLE_FORMAT = "\n*{title}*\n\n{subtitle} [Read more]({source_url})\n
 def main():
 
     article = helpers.last_news_article("BTC")
-    required_words = [
-        "btc",
-        "bitcoin",
-    ]
 
-    article_title = article["title"]
-    article_subtitle = article["subtitle"]
-    article_timestamp = article["timestamp"]
+    title = article["title"]
+    subtitle = article["subtitle"]
+    timestamp = article["timestamp"]
+    source_url = article["source_url"]
 
-    if not any(w in article_title.lower() for w in required_words):
+    # If the article was published within the last 15 minutes.
+    if timestamp >= (time.time() - 60 * 15):
 
-        logger.info(
-            "Last article does not contain any of the required keywords. "
-            "Last article title: %s",
-            article_title,
+        posts = helpers.channel_last_posts(
+            TELEGRAM_CHANNEL_ID,
         )
 
-        return None
+        if not any(title in p for p in posts):
 
-    if article_title == "" or article_subtitle == "":
+            text = TELEGRAM_ARTICLE_FORMAT.format(
+                title=title,
+                subtitle=subtitle,
+                source_url=source_url,
+            )
 
-        logger.info(
-            "Last article's title or subtitle is empty. Last article title: %s",
-            article_title,
-        )
+            helpers.send_telegram_msg(
+                bot_token=TELEGRAM_BOT_TOKEN,
+                username=TELEGRAM_CHANNEL_ID,
+                text=text,
+            )
 
-        return None
+        else:
+            logger.info(
+                "Last article was already published in the Telegram channel. ",
+            )
 
-    # If the article was not published within the last 15 minutes.
-    if not article_timestamp >= (time.time() - 60 * 15):
-
+    else:
         logger.info(
             "Last article was not published within the last fifteen minutes. "
             "It was published at %f",
-            article_timestamp,
+            timestamp,
         )
-
-        return None
-
-    posts = helpers.channel_last_posts(
-        TELEGRAM_CHANNEL_ID,
-    )
-
-    if any(article_title in p for p in posts):
-
-        logger.info(
-            "Last article was already published in the Telegram channel. "
-            "Number of duplicates: %d",
-            [article_title in p for p in posts].count(True),
-        )
-
-        return None
-
-    text = TELEGRAM_ARTICLE_FORMAT.format(
-        title=article["title"],
-        subtitle=article["subtitle"],
-        source_url=article["source_url"],
-    )
-
-    helpers.send_telegram_msg(
-        bot_token=TELEGRAM_BOT_TOKEN,
-        username=TELEGRAM_CHANNEL_ID,
-        text=text,
-    )
 
 
 if __name__ == "__main__":
