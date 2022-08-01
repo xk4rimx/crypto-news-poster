@@ -6,7 +6,10 @@ def channel_last_posts(username: str) -> list:
 
     username = username.strip("@")
 
-    html = requests.get(f"https://t.me/s/{username}").text
+    response = requests.get(f"https://t.me/s/{username}")
+    response.raise_for_status()
+
+    html = response.text
     soup = bs4.BeautifulSoup(html, "lxml")
 
     results = soup.find_all(
