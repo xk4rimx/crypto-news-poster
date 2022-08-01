@@ -5,9 +5,7 @@ import bs4
 import requests
 import fastpunct
 
-fp = fastpunct.FastPunct(
-    checkpoint_local_path=".fastpunct/",
-)
+fp = fastpunct.FastPunct()
 
 
 def _get_last_articles(coin: str) -> dict:
