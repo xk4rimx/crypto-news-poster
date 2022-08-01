@@ -1,43 +1,37 @@
-# This script supposes that you executed it every 10 minutes.
+# This script supposes that you executed it every 30 minutes.
 
 import os
-import time
-import logging
 import dotenv
 import helpers
-
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHANNEL_ID = "@btc_newsletter"
-TELEGRAM_ARTICLE_FORMAT = "\n*{title}*\n\n{subtitle} [Read more]({source_url})\nㅤ"
+TELEGRAM_CHANNEL_ID = "@crypto_reports"
+TELEGRAM_ARTICLE_FORMAT = "*{title}*\n\n{description}"
 
 
 def main():
 
-    article = helpers.last_news_article("BTC")
+    articles = helpers.last_news_articles(
+        period=60 * 45,
+    )
 
-    title = article["title"]
-    subtitle = article["subtitle"]
-    timestamp = article["timestamp"]
-    source_url = article["source_url"]
-
-    # If the article was published within the last 15 minutes.
-    if timestamp >= (time.time() - 60 * 15):
-
+    if articles:
         posts = helpers.channel_last_posts(
             TELEGRAM_CHANNEL_ID,
         )
+
+    for article in articles:
+
+        title = article["title"]
+        description = article["description"]
 
         if not any(title in p for p in posts):
 
             text = TELEGRAM_ARTICLE_FORMAT.format(
                 title=title,
-                subtitle=subtitle,
-                source_url=source_url,
+                description=description,
             )
 
             helpers.send_telegram_msg(
@@ -45,18 +39,6 @@ def main():
                 username=TELEGRAM_CHANNEL_ID,
                 text=text,
             )
-
-        else:
-            logger.info(
-                "Last article was already published in the Telegram channel. ",
-            )
-
-    else:
-        logger.info(
-            "Last article was not published within the last fifteen minutes. "
-            "It was published at %f",
-            timestamp,
-        )
 
 
 if __name__ == "__main__":

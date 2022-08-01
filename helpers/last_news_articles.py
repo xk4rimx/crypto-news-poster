@@ -1,16 +1,22 @@
+import time
 import datetime
 import zoneinfo
 import dateutil.parser as dparser
 import bs4
 import requests
+import faker
 import fastpunct
 
 fp = fastpunct.FastPunct()
+fake = faker.Faker()
 
 
-def _get_last_articles(coin: str) -> dict:
+def _get_last_articles() -> dict:
 
     sess = requests.Session()
+    sess.headers.update = {
+        "user-agent": fake.user_agent(),
+    }
 
     html = sess.get("https://cryptonews-api.com/").text
     soup = bs4.BeautifulSoup(html, "lxml")
@@ -20,13 +26,11 @@ def _get_last_articles(coin: str) -> dict:
 
     data = {
         "token": "demo",
-        "tickers": coin,
         "_token": csrf_token,
     }
 
     response = sess.post(
-        "https://cryptonews-api.com/demo/index",
-        headers={"content-type": "application/x-www-form-urlencoded"},
+        "https://cryptonews-api.com/demo/trending-headlines",
         data=data,
     )
 
@@ -36,34 +40,37 @@ def _get_last_articles(coin: str) -> dict:
 
 def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
 
-    title = article["title"]
-    subtitle = article["text"]
+    title = article["headline"]
+    description = article["text"]
     date = article["date"]
-    source_url = article["news_url"]
 
-    # Fix punctuation issues in the subtitle.
-    subtitle = fp.punct(subtitle)
+    # Fix punctuation issues in the description.
+    description = fp.punct(description)
 
     # Convert date from UTC to local time, and then into a timestamp.
     date = dparser.parse(date).astimezone(zoneinfo.ZoneInfo("localtime"))
     timestamp = datetime.datetime.timestamp(date)
 
-    return title, subtitle, timestamp, source_url
+    return title, description, timestamp
 
 
-def last_news_article(coin: str) -> dict:
+def last_news_articles(period: int) -> dict:
 
-    articles = _get_last_articles(coin)
-    articles = [article for article in articles if len(article["tickers"]) == 1]
+    raw_articles = _get_last_articles()
+    articles = []
 
-    last_article = articles[0]
-    title, subtitle, timestamp, source_url = _preproccess_article_data(
-        last_article,
-    )
+    for article in raw_articles:
 
-    return {
-        "title": title,
-        "subtitle": subtitle,
-        "timestamp": timestamp,
-        "source_url": source_url,
-    }
+        title, description, timestamp = _preproccess_article_data(
+            article,
+        )
+
+        if timestamp >= (time.time() - period):
+            articles.append(
+                {
+                    "title": title,
+                    "description": description,
+                },
+            )
+
+    return articles
