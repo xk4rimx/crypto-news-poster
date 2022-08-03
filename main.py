@@ -8,7 +8,7 @@ dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_CHANNEL_ID = "@crypto_reports"
-TELEGRAM_ARTICLE_FORMAT = "*{title}*\n\n{description}"
+TELEGRAM_ARTICLE_FORMAT = "*{title}*\n\n{summary}"
 
 
 def main():
@@ -18,20 +18,20 @@ def main():
     )
 
     if articles:
-        posts = helpers.channel_last_posts(
+        posts = helpers.telegram_last_posts(
             TELEGRAM_CHANNEL_ID,
         )
 
     for article in articles:
 
         title = article["title"]
-        description = article["description"]
+        summary = article["summary"]
 
         if not any(title in p for p in posts):
 
             text = TELEGRAM_ARTICLE_FORMAT.format(
                 title=title,
-                description=description,
+                summary=summary,
             )
 
             helpers.send_telegram_msg(
