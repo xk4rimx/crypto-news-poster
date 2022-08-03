@@ -1,76 +1,90 @@
 import time
-import datetime
-import zoneinfo
-import dateutil.parser as dparser
-import bs4
+import subprocess
 import requests
-import faker
-import fastpunct
 
-fp = fastpunct.FastPunct()
-fake = faker.Faker()
+SUMMY_ALGORITHMS = [
+    "luhn",
+    "edmundson",
+    "lsa",
+    "text-rank",
+    "lex-rank",
+    "sum-basic",
+    "kl",
+]
 
 
-def _get_last_articles() -> dict:
+def _scrape_last_articles(period: int) -> list:
 
-    sess = requests.Session()
-    sess.headers.update = {
-        "user-agent": fake.user_agent(),
-    }
-
-    html = sess.get("https://cryptonews-api.com/").text
-    soup = bs4.BeautifulSoup(html, "lxml")
-
-    csrf_element = soup.find("meta", {"name": "csrf-token"})
-    csrf_token = csrf_element["content"]
-
-    data = {
-        "token": "demo",
-        "_token": csrf_token,
-    }
-
-    response = sess.post(
-        "https://cryptonews-api.com/demo/trending-headlines",
-        data=data,
+    response = requests.get(
+        "https://cnews24.ru/m-api/news/v4/articles/",
+        params={
+            "rubricId": 0,
+            "locale": "en",
+        },
     )
 
     response.raise_for_status()
-    return response.json()["data"]
+    articles = response.json()["items"]
+
+    for article in articles.copy():
+
+        if (
+            article["type"] == "article"
+            and article["sponsored"] is False
+            and article["inMain"] is True
+            and article["hasContent"] is True
+            and article["publication"] >= (time.time() - period)
+        ):
+            continue
+
+        articles.remove(article)
+
+    return articles
 
 
-def _preproccess_article_data(article: dict) -> tuple[str, str, float, str]:
+def _preproccess_raw_article(article: dict) -> tuple[str, str]:
 
-    title = article["headline"]
-    description = article["text"]
-    date = article["date"]
+    title = article["title"]
+    title = title.strip(".")
 
-    # Fix punctuation issues in the description.
-    description = fp.punct(description)
+    source_url = article["sharingLink"]
+    source_url = source_url.split("?")[0]
 
-    # Convert date from UTC to local time, and then into a timestamp.
-    date = dparser.parse(date).astimezone(zoneinfo.ZoneInfo("localtime"))
-    timestamp = datetime.datetime.timestamp(date)
+    summaries = []
 
-    return title, description, timestamp
+    for algo in SUMMY_ALGORITHMS:
+
+        try:
+            summary = subprocess.run(
+                ["sumy", algo, "--length=1", f"--url={source_url}"],
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError:
+            continue
+
+        summary = summary.stdout
+        summary = summary.decode().strip("\n")
+
+        summaries.append(summary)
+
+    summary = max(set(summaries), key=summaries.count)  # most freq
+    return title, summary
 
 
 def last_news_articles(period: int) -> dict:
 
-    raw_articles = _get_last_articles()
+    raw_articles = _scrape_last_articles(period)
     articles = []
 
     for article in raw_articles:
 
-        title, description, timestamp = _preproccess_article_data(
-            article,
+        title, summary = _preproccess_raw_article(article)
+        articles.append(
+            {
+                "title": title,
+                "summary": summary,
+            },
         )
-
-        if timestamp >= (time.time() - period):
-            articles.append(
-                {
-                    "title": title,
-                    "description": description,
-                },
-            )
 
     return articles
