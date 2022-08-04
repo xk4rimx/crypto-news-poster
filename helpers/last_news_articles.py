@@ -1,6 +1,10 @@
 import time
 import subprocess
 import requests
+import nltk
+
+# Download summy tokenizer if it was not already downloaded
+nltk.download("punkt")
 
 SUMMY_ALGORITHMS = [
     "luhn",
@@ -45,7 +49,7 @@ def _scrape_last_articles(period: int) -> list:
 def _preproccess_raw_article(article: dict) -> tuple[str, str]:
 
     title = article["title"]
-    title = title.strip(".")
+    title = title.replace(".", "")
 
     source_url = article["sharingLink"]
     source_url = source_url.split("?")[0]
@@ -64,7 +68,7 @@ def _preproccess_raw_article(article: dict) -> tuple[str, str]:
             continue
 
         summary = summary.stdout
-        summary = summary.decode().strip("\n")
+        summary = summary.decode().replace("\n", "")
 
         summaries.append(summary)
 
