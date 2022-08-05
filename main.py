@@ -14,7 +14,7 @@ TELEGRAM_ARTICLE_FORMAT = "*{title}*\n\n{summary}"
 def main():
 
     articles = helpers.last_news_articles(
-        period=60 * 45,
+        period=12 * (60 * 60),
     )
 
     if articles:
