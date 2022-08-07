@@ -1,7 +1,5 @@
+beautifulsoup4==4.11.1
+newspaper3k==0.2.8
 python-dotenv==0.20.0
 requests==2.23.0
-beautifulsoup4==4.11.1
-lxml==4.9.1
-numpy==1.23.1
-nltk==3.7
-sumy==0.10.0
+packages/summarie/
