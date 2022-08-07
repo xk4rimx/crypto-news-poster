@@ -1,9 +1,11 @@
 # This script supposes that you executed it every 30 minutes.
 
 import os
+import logging
 import dotenv
 import helpers
 
+logging.basicConfig(level=logging.DEBUG)
 dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
