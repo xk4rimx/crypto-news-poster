@@ -24,14 +24,16 @@ def main():
 
     for article in articles:
 
+        # get_summary: Computationally intensive function; only executed when needed.
+
         title = article["title"]
-        summary = article["summary"]
+        get_summary = article["get_summary"]
 
         if not any(title in p for p in posts):
 
             text = TELEGRAM_ARTICLE_FORMAT.format(
                 title=title,
-                summary=summary,
+                summary=get_summary(),
             )
 
             helpers.send_telegram_msg(
