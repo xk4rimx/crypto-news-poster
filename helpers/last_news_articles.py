@@ -1,20 +1,6 @@
 import time
-import subprocess
 import requests
-import nltk
-
-# Download summy tokenizer if it was not already downloaded
-nltk.download("punkt")
-
-SUMMY_ALGORITHMS = [
-    "luhn",
-    "edmundson",
-    "lsa",
-    "text-rank",
-    "lex-rank",
-    "sum-basic",
-    "kl",
-]
+import summarie
 
 
 def _scrape_last_articles(period: int) -> list:
@@ -54,26 +40,8 @@ def _preproccess_raw_article(article: dict) -> tuple[str, str]:
     source_url = article["sharingLink"]
     source_url = source_url.split("?")[0]
 
-    summaries = []
-
-    for algo in SUMMY_ALGORITHMS:
-
-        try:
-            summary = subprocess.run(
-                ["sumy", algo, "--length=1", f"--url={source_url}"],
-                capture_output=True,
-                check=True,
-            )
-        except subprocess.CalledProcessError:
-            continue
-
-        summary = summary.stdout
-        summary = summary.decode().replace("\n", "")
-
-        summaries.append(summary)
-
-    summary = max(set(summaries), key=summaries.count)  # most freq
-    return title, summary
+    get_summary = lambda: summarie.from_url(source_url)  # noqa: E731
+    return title, get_summary
 
 
 def last_news_articles(period: int) -> dict:
@@ -83,11 +51,11 @@ def last_news_articles(period: int) -> dict:
 
     for article in raw_articles:
 
-        title, summary = _preproccess_raw_article(article)
+        title, get_summary = _preproccess_raw_article(article)
         articles.append(
             {
                 "title": title,
-                "summary": summary,
+                "get_summary": get_summary,
             },
         )
 
