@@ -7,7 +7,8 @@ def fb_bart_api(inputs: str) -> str:
         "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",
         json={
             "inputs": inputs,
-            "config": {"wait_for_model": True},
+            "parameters": {"temperature": 0},
+            "options": {"wait_for_model": True},
         },
     )
 
