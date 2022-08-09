@@ -7,29 +7,44 @@ import cleantext
 
 def _clean_text(text: str) -> str:
 
-    text = cleantext.clean(text)  # replace non-ascii to closest ascii
-    text = text.replace('"', "")  # remove quotes
-    text = re.sub(r"\([^()]*\)", "", text)  # remove text between brackets
-    text = cleantext.clean(text)  # general cleaning
+    # Clean the text in a general way.
+    text = cleantext.clean(
+        text,
+        lower=False,
+        keep_two_line_breaks=True,
+    )
+
+    text = text.replace("--", "-")
+    text = text.replace('"', "")
+
+    # Remove text between brackets.
+    text = re.sub(r"\([^()]*\)", "", text)
+
+    # Clean the text again due to the above replacements.
+    text = cleantext.clean(
+        text,
+        lower=False,
+        keep_two_line_breaks=True,
+    )
 
     return text
 
 
 def from_text(text: str) -> str:
 
-    """Generates a summary from the given text"""
+    """Generates a summary from the given text."""
 
     text = _clean_text(text)
 
     results = helpers.fb_bart_api(inputs=text)
-    summary = results[0]["summary_text"].lower()
+    summary = results[0]["summary_text"]
 
     return summary
 
 
 def from_url(url: str) -> str:
 
-    """Generates a summary from the given article link"""
+    """Generates a summary from the given article link."""
 
     article = newspaper.Article(url)
 
