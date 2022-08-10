@@ -1,9 +1,10 @@
 import time
 import requests
+import cleantext
 import summarie
 
 
-def _scrape_last_articles(period: int) -> list:
+def _scrape_last_articles(period: int) -> list[dict]:
 
     response = requests.get(
         "https://cnews24.ru/m-api/news/v4/articles/",
@@ -14,49 +15,44 @@ def _scrape_last_articles(period: int) -> list:
     )
 
     response.raise_for_status()
+
     articles = response.json()["items"]
+    min_publication_ts = time.time() - period
 
     for article in articles.copy():
 
         if (
-            article["type"] == "article"
-            and article["sponsored"] is False
-            and article["inMain"] is True
-            and article["hasContent"] is True
-            and article["publication"] >= (time.time() - period)
+            article["type"] != "article"
+            or article["sponsored"] is True
+            or article["inMain"] is False
+            or article["hasContent"] is False
+            or article["publication"] < min_publication_ts
         ):
-            continue
-
-        articles.remove(article)
+            articles.remove(article)
 
     return articles
 
 
-def _preproccess_raw_article(article: dict) -> tuple[str, str]:
+def _preprocess_raw_article(article: dict) -> dict:
 
     title = article["title"]
+    article_url = article["sharingLink"]
+
+    # Clean the article's title.
     title = title.replace(".", "")
+    title = cleantext.clean(title, lower=False)
 
-    source_url = article["sharingLink"]
-    source_url = source_url.split("?")[0]
+    gen_summary_func = lambda: summarie.from_url(article_url)  # noqa: E731
 
-    get_summary = lambda: summarie.from_url(source_url)  # noqa: E731
-    return title, get_summary
+    return {
+        "title": title,
+        "gen_summary_func": gen_summary_func,
+    }
 
 
-def last_news_articles(period: int) -> dict:
+def last_news_articles(period: int) -> list[dict]:
 
     raw_articles = _scrape_last_articles(period)
-    articles = []
-
-    for article in raw_articles:
-
-        title, get_summary = _preproccess_raw_article(article)
-        articles.append(
-            {
-                "title": title,
-                "get_summary": get_summary,
-            },
-        )
+    articles = [_preprocess_raw_article(article) for article in raw_articles]
 
     return articles
