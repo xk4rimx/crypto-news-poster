@@ -1,4 +1,4 @@
-# This script supposes that you executed it every 30 minutes.
+# This script supposes that you executed it every hour.
 
 import os
 import logging
@@ -26,16 +26,17 @@ def main():
 
     for article in articles:
 
-        # get_summary: Computationally intensive function; only executed when needed.
-
         title = article["title"]
-        get_summary = article["get_summary"]
+        gen_summary_func = article["gen_summary_func"]
 
         if not any(title in p for p in posts):
 
+            # Generate the article's summary.
+            summary = gen_summary_func()
+
             text = TELEGRAM_ARTICLE_FORMAT.format(
                 title=title,
-                summary=get_summary(),
+                summary=summary,
             )
 
             helpers.send_telegram_msg(
