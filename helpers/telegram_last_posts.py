@@ -2,7 +2,7 @@ import requests
 import bs4
 
 
-def telegram_last_posts(username: str) -> list:
+def telegram_last_posts(username: str) -> list[str]:
 
     username = username.strip("@")
 
@@ -16,5 +16,5 @@ def telegram_last_posts(username: str) -> list:
         "div", {"class": "tgme_widget_message_text js-message_text"}
     )
 
-    posts = [r.text for r in results]
+    posts = [result.text for result in results]
     return posts
