@@ -36,8 +36,8 @@ def from_text(text: str) -> str:
 
     text = _clean_text(text)
 
-    results = helpers.fb_bart_api(inputs=text)
-    summary = results[0]["summary_text"]
+    response_data = helpers.fb_bart_api(inputs=text)
+    summary = response_data[0]["summary_text"]
 
     return summary
 
@@ -52,4 +52,4 @@ def from_url(url: str) -> str:
     article.parse()
 
     text = article.text
-    return from_text(text=text)
+    return from_text(text)
