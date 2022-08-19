@@ -39,7 +39,7 @@ def _preprocess_raw_article(article: dict) -> dict:
     article_url = article["sharingLink"]
 
     # Clean the article's title.
-    title = title.replace(".", "")
+    title = title.strip(".")
     title = cleantext.clean(title, lower=False)
 
     gen_summary_func = lambda: summarie.from_url(article_url)  # noqa: E731
