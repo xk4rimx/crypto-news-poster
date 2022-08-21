@@ -1,4 +1,4 @@
-# This script supposes that you executed it every hour.
+# This script is supposed to be executed once every hour.
 
 import os
 import logging
