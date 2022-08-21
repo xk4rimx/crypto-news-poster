@@ -9,7 +9,7 @@ def _clean_text(text: str) -> str:
 
     # Clean the text in a general way.
     text = cleantext.clean(
-        text,
+        text=text,
         lower=False,
         keep_two_line_breaks=True,
     )
