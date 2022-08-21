@@ -16,7 +16,7 @@ TELEGRAM_ARTICLE_FORMAT = os.environ["TELEGRAM_ARTICLE_FORMAT"]
 def main():
 
     articles = helpers.last_news_articles(
-        period=12 * (60 * 60),
+        period=24 * (60 * 60),
     )
 
     if articles:
