@@ -27,16 +27,16 @@ def main():
     for article in articles:
 
         title = article["title"]
-        gen_summary_func = article["gen_summary_func"]
+        get_body = article["get_body"]
 
         if not any(title in p for p in posts):
 
-            # Generate the article's summary.
-            summary = gen_summary_func()
+            # Generate the article's body.
+            body = get_body()
 
             text = TELEGRAM_ARTICLE_FORMAT.format(
                 title=title,
-                summary=summary,
+                body=body,
             )
 
             helpers.send_telegram_msg(
