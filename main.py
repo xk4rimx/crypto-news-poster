@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.DEBUG)
 dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHANNEL_ID = "@crypto_reports"
-TELEGRAM_ARTICLE_FORMAT = "*{title}*\n\n{summary}"
+TELEGRAM_CHANNEL_ID = os.environ["TELEGRAM_CHANNEL_ID"]
+TELEGRAM_ARTICLE_FORMAT = os.environ["TELEGRAM_ARTICLE_FORMAT"]
 
 
 def main():
