@@ -1,1 +1,1 @@
-from .fb_bart_api import fb_bart_api
+from .facebook_bart_api import facebook_bart_api

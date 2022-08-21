@@ -1,7 +1,7 @@
 import requests
 
 
-def fb_bart_api(inputs: str) -> str:
+def facebook_bart_api(inputs: str) -> str:
 
     response = requests.post(
         "https://api-inference.huggingface.co/models/facebook/bart-large-cnn",

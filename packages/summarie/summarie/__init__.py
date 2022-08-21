@@ -35,7 +35,7 @@ def from_text(text: str) -> str:
     """Generates a summary from the given text."""
 
     text = _clean_text(text)
-    response_data = helpers.fb_bart_api(inputs=text)
+    response_data = helpers.facebook_bart_api(inputs=text)
 
     summary = response_data[0]["summary_text"]
     summary = _clean_text(summary)
