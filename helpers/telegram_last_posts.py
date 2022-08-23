@@ -13,7 +13,8 @@ def telegram_last_posts(username: str) -> list[str]:
     soup = bs4.BeautifulSoup(html, "lxml")
 
     results = soup.find_all(
-        "div", {"class": "tgme_widget_message_text js-message_text"}
+        name="div",
+        attrs={"class": "tgme_widget_message_text js-message_text"},
     )
 
     posts = [result.text for result in results]

@@ -22,7 +22,7 @@ def _clean_text(text: str) -> str:
 
     # Clean the text again due to the above replacements.
     text = cleantext.clean(
-        text,
+        text=text,
         lower=False,
         keep_two_line_breaks=True,
     )
