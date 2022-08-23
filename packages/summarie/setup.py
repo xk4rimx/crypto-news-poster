@@ -6,8 +6,6 @@ with open("./requirements.txt", "r") as f:
 setuptools.setup(
     name="summarie",
     version="0.0.1",
-    description="",
-    url="",
     author="k4rim",
     install_requires=required,
     author_email="xk4rim@gmail.com",
