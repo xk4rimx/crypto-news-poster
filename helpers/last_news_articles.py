@@ -1,4 +1,5 @@
 import time
+import functools
 import requests
 import summarie
 
@@ -34,7 +35,7 @@ def _scrape_last_articles(period: int) -> list[dict]:
         title = article["title"]
         link = article["sharingLink"]
 
-        get_body = lambda link=link: summarie.from_url(link)
+        get_body = functools.partial(summarie.from_url, link)
 
         articles.append(
             {
