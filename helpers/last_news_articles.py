@@ -50,7 +50,7 @@ def _preprocess_raw_article(article: dict) -> dict:
     }
 
 
-def last_news_articles(period: int) -> list[dict]:
+def last_news_articles(period: int = 86400) -> list[dict]:
 
     raw_articles = _scrape_last_articles(period)
     articles = [_preprocess_raw_article(article) for article in raw_articles]
