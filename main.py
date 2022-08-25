@@ -17,10 +17,12 @@ def main():
 
     articles = helpers.last_news_articles()
 
-    if articles:
-        posts = helpers.telegram_last_posts(
-            TELEGRAM_NEWS_CHANNEL_USERNAME,
-        )
+    if not articles:
+        return
+
+    posts = helpers.telegram_last_posts(
+        TELEGRAM_NEWS_CHANNEL_USERNAME,
+    )
 
     for article in articles:
 
@@ -29,12 +31,9 @@ def main():
 
         if not any(title in p for p in posts):
 
-            # Generate the article's body.
-            body = get_body()
-
             text = TELEGRAM_NEWS_ARTICLE_FORMAT.format(
                 title=title,
-                body=body,
+                body=get_body(),
             )
 
             helpers.send_telegram_msg(
