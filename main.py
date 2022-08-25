@@ -10,7 +10,7 @@ dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
 TELEGRAM_NEWS_CHANNEL_USERNAME = os.environ["TELEGRAM_NEWS_CHANNEL_USERNAME"]
-TELEGRAM_ARTICLE_FORMAT = os.environ["TELEGRAM_ARTICLE_FORMAT"]
+TELEGRAM_NEWS_ARTICLE_FORMAT = os.environ["TELEGRAM_NEWS_ARTICLE_FORMAT"]
 
 
 def main():
@@ -32,7 +32,7 @@ def main():
             # Generate the article's body.
             body = get_body()
 
-            text = TELEGRAM_ARTICLE_FORMAT.format(
+            text = TELEGRAM_NEWS_ARTICLE_FORMAT.format(
                 title=title,
                 body=body,
             )
