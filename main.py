@@ -9,7 +9,7 @@ logging.basicConfig(level=logging.DEBUG)
 dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
-TELEGRAM_CHANNEL_USERNAME = os.environ["TELEGRAM_CHANNEL_USERNAME"]
+TELEGRAM_NEWS_CHANNEL_USERNAME = os.environ["TELEGRAM_NEWS_CHANNEL_USERNAME"]
 TELEGRAM_ARTICLE_FORMAT = os.environ["TELEGRAM_ARTICLE_FORMAT"]
 
 
@@ -19,7 +19,7 @@ def main():
 
     if articles:
         posts = helpers.telegram_last_posts(
-            TELEGRAM_CHANNEL_USERNAME,
+            TELEGRAM_NEWS_CHANNEL_USERNAME,
         )
 
     for article in articles:
@@ -39,7 +39,7 @@ def main():
 
             helpers.send_telegram_msg(
                 bot_token=TELEGRAM_BOT_TOKEN,
-                username=TELEGRAM_CHANNEL_USERNAME,
+                username=TELEGRAM_NEWS_CHANNEL_USERNAME,
                 text=text,
             )
 
