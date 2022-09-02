@@ -29,19 +29,20 @@ def main():
         article_id = article["id"]
         get_body = article["get_body"]
 
-        if article_id not in logs:
+        if article_id in logs:
+            continue
 
-            helpers.send_telegram_msg(
-                bot_token=TELEGRAM_BOT_TOKEN,
-                username=TELEGRAM_LOGS_CHANNEL_USERNAME,
-                text=article_id,
-            )
+        helpers.send_telegram_msg(
+            bot_token=TELEGRAM_BOT_TOKEN,
+            username=TELEGRAM_LOGS_CHANNEL_USERNAME,
+            text=article_id,
+        )
 
-            helpers.send_telegram_msg(
-                bot_token=TELEGRAM_BOT_TOKEN,
-                username=TELEGRAM_NEWS_CHANNEL_USERNAME,
-                text=get_body(),
-            )
+        helpers.send_telegram_msg(
+            bot_token=TELEGRAM_BOT_TOKEN,
+            username=TELEGRAM_NEWS_CHANNEL_USERNAME,
+            text=get_body(),
+        )
 
 
 if __name__ == "__main__":

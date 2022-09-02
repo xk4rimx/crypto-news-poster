@@ -5,7 +5,7 @@ import requests_random_user_agent
 import summarie
 
 
-def _scrape_last_articles(period: int) -> list[dict]:
+def last_news_articles(period: int = 86400) -> list[dict]:
 
     response = requests.get(
         "https://cnews24.ru/m-api/news/v4/articles/",
@@ -49,7 +49,3 @@ def _scrape_last_articles(period: int) -> list[dict]:
         )
 
     return articles
-
-
-def last_news_articles(period: int = 86400) -> list[dict]:
-    return _scrape_last_articles(period)
