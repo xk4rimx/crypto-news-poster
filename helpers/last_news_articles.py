@@ -33,17 +33,17 @@ def _scrape_last_articles(period: int) -> list[dict]:
         ):
             continue
 
-        title = article["title"]
-        link = article["sharingLink"]
+        article_id = article["id"]
+        article_link = article["sharingLink"]
 
         get_body = functools.partial(
             summarie.from_url,
-            link,
+            article_link,
         )
 
         articles.append(
             {
-                "title": title,
+                "id": str(article_id),
                 "get_body": get_body,
             },
         )

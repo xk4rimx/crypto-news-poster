@@ -9,8 +9,8 @@ logging.basicConfig(level=logging.DEBUG)
 dotenv.load_dotenv()
 
 TELEGRAM_BOT_TOKEN = os.environ["TELEGRAM_BOT_TOKEN"]
+TELEGRAM_LOGS_CHANNEL_USERNAME = os.environ["TELEGRAM_LOGS_CHANNEL_USERNAME"]
 TELEGRAM_NEWS_CHANNEL_USERNAME = os.environ["TELEGRAM_NEWS_CHANNEL_USERNAME"]
-TELEGRAM_NEWS_ARTICLE_FORMAT = os.environ["TELEGRAM_NEWS_ARTICLE_FORMAT"]
 
 
 def main():
@@ -20,26 +20,27 @@ def main():
     if not articles:
         return
 
-    posts = helpers.telegram_last_posts(
-        TELEGRAM_NEWS_CHANNEL_USERNAME,
+    logs = helpers.telegram_last_posts(
+        TELEGRAM_LOGS_CHANNEL_USERNAME,
     )
 
     for article in articles:
 
-        title = article["title"]
+        article_id = article["id"]
         get_body = article["get_body"]
 
-        if not any(title in p for p in posts):
+        if article_id not in logs:
 
-            text = TELEGRAM_NEWS_ARTICLE_FORMAT.format(
-                title=title,
-                body=get_body(),
+            helpers.send_telegram_msg(
+                bot_token=TELEGRAM_BOT_TOKEN,
+                username=TELEGRAM_LOGS_CHANNEL_USERNAME,
+                text=article_id,
             )
 
             helpers.send_telegram_msg(
                 bot_token=TELEGRAM_BOT_TOKEN,
                 username=TELEGRAM_NEWS_CHANNEL_USERNAME,
-                text=text,
+                text=get_body(),
             )
 
 
