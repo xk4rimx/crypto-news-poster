@@ -52,5 +52,5 @@ def from_url(url: str) -> str:
     article.download()
     article.parse()
 
-    text = article.text
+    text = f"{article.title}\n\n{article.text}"
     return from_text(text)
