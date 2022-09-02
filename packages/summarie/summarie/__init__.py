@@ -14,8 +14,16 @@ def _clean_text(text: str) -> str:
         keep_two_line_breaks=True,
     )
 
-    text = text.replace("--", "-")
-    text = text.replace('"', "")
+    replacements = [
+        ('"', ""),
+        (" , ", ", "),
+        (" . ", ". "),
+        (" - ", " – "),
+        (" -- ", " – "),
+    ]
+
+    for old, new in replacements:
+        text = text.replace(old, new)
 
     # Remove text between brackets.
     text = re.sub(r"\([^()]*\)", "", text)
@@ -23,6 +31,7 @@ def _clean_text(text: str) -> str:
     # Clean the text again due to the above replacements.
     text = cleantext.clean(
         text=text,
+        to_ascii=False,
         lower=False,
         keep_two_line_breaks=True,
     )
