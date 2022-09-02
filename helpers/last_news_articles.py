@@ -36,7 +36,7 @@ def last_news_articles(period: int = 86400) -> list[dict]:
         article_id = article["id"]
         article_link = article["sharingLink"]
 
-        get_body = functools.partial(
+        get_article_text = functools.partial(
             summarie.from_url,
             article_link,
         )
@@ -44,7 +44,7 @@ def last_news_articles(period: int = 86400) -> list[dict]:
         articles.append(
             {
                 "id": str(article_id),
-                "get_body": get_body,
+                "get_article_text": get_article_text,
             },
         )
 

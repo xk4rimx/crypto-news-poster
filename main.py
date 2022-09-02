@@ -27,7 +27,7 @@ def main():
     for article in articles:
 
         article_id = article["id"]
-        get_body = article["get_body"]
+        get_article_text = article["get_article_text"]
 
         if article_id in logs:
             continue
@@ -41,7 +41,7 @@ def main():
         helpers.send_telegram_msg(
             bot_token=TELEGRAM_BOT_TOKEN,
             username=TELEGRAM_NEWS_CHANNEL_USERNAME,
-            text=get_body(),
+            text=get_article_text(),
         )
 
 
