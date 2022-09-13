@@ -32,6 +32,12 @@ def main():
         if article_id in logs:
             continue
 
+        # We get the article text before sending logs so that the article
+        # doesn't get marked as posted when an exception occurs
+        # and the script stops.
+
+        text = get_article_text()
+
         helpers.send_telegram_msg(
             bot_token=TELEGRAM_BOT_TOKEN,
             username=TELEGRAM_LOGS_CHANNEL_USERNAME,
@@ -41,7 +47,7 @@ def main():
         helpers.send_telegram_msg(
             bot_token=TELEGRAM_BOT_TOKEN,
             username=TELEGRAM_NEWS_CHANNEL_USERNAME,
-            text=get_article_text(),
+            text=text,
         )
 
 
