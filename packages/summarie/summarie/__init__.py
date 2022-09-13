@@ -15,7 +15,6 @@ def _clean_summary(text: str) -> str:
     )
 
     replacements = [
-        ('"', ""),
         (" , ", ", "),
         (" . ", ". "),
         (" - ", " – "),
