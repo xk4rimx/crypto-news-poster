@@ -5,7 +5,7 @@ import newspaper
 import cleantext
 
 
-def _clean_text(text: str) -> str:
+def _clean_summary(text: str) -> str:
 
     # Clean the text in a general way.
     text = cleantext.clean(
@@ -42,12 +42,10 @@ def _clean_text(text: str) -> str:
 def from_text(text: str) -> str:
 
     """Generates a summary from the given text."""
-
-    text = _clean_text(text)
     response_data = helpers.facebook_bart_api(inputs=text)
 
     summary = response_data[0]["summary_text"]
-    summary = _clean_text(summary)
+    summary = _clean_summary(summary)
 
     return summary
 
